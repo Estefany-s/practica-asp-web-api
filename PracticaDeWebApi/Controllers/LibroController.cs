@@ -146,7 +146,7 @@ namespace PracticaDeWebApi.Controllers
         [Route("GetCantidadLibrosEscritos/{id}")]
         public IActionResult GetCantLibrosEscritos(int id)
         {
-            var liborPorAutor = (from l in _bibliotecaContexto.Libro
+            var libroPorAutor = (from l in _bibliotecaContexto.Libro
                                  join a in _bibliotecaContexto.Autor
                                     on l.id_autor equals a.id_autor
                                     where l.id_autor == id
@@ -157,12 +157,12 @@ namespace PracticaDeWebApi.Controllers
                                      CantidadLibros = libro.Count()
                                  }).ToList();
 
-            if(!liborPorAutor.Any())
+            if(!libroPorAutor.Any())
             {
                 return NotFound();
             }
 
-            return Ok(liborPorAutor);
+            return Ok(libroPorAutor);
         }
 
         // Permite buscar libros por título.
@@ -182,5 +182,52 @@ namespace PracticaDeWebApi.Controllers
             return Ok(libro);
         }
 
+        //Obtener los Libros Más Recientes
+        [HttpGet]
+        [Route("LibrosRecientes")]
+        public IActionResult librosRecientes()
+        {
+            // Se considera reciente si fue publicado después del 2020
+            DateTime fechaComparacion = new DateTime(2020, 1, 1);
+
+            var listaLibro = (from l in _bibliotecaContexto.Libro
+                                      join a in _bibliotecaContexto.Autor on l.id_autor equals a.id_autor
+                                      where l.anioPublicacion > fechaComparacion
+                                      select new
+                                      {
+                                          libro = l.titulo,
+                                          publicadoEn = l.anioPublicacion,
+                                          autor = a.nombre
+                                      }).ToList();
+
+            if (!listaLibro.Any())
+            {
+                return NotFound();
+            }
+            return Ok(listaLibro);
+        }
+
+        // Cantidad Total de Libros por Año
+        [HttpGet]
+        [Route("LibrosPorAnio")]
+        public IActionResult LibrosPorAnio()
+        {
+
+            var cantTotal = (from l in _bibliotecaContexto.Libro
+                             group l by l.anioPublicacion.Year into anioPubl
+                             select new
+                             {
+                                 anio = anioPubl.Key,
+                                 cantidadLibrosPorAnio = anioPubl.Count()
+                             })
+                             .OrderBy(res => res.anio)
+                             .ToList();
+
+            if (!cantTotal.Any())
+            {
+                return NotFound();
+            }
+            return Ok(cantTotal);
+        }
     }
 }

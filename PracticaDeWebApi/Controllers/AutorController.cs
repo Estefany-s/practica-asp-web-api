@@ -117,6 +117,81 @@ namespace PracticaDeWebApi.Controllers
 
         }
 
+        // Obtener los Autores con Más Libros Publicados
+        [HttpGet]
+        [Route("autoresConMasLibros")]
+        public IActionResult autoresMasLibrosPublicados()
+        {
+            var libroPorAutor = (from l in _bibliotecaContexto.Libro
+                                 join a in _bibliotecaContexto.Autor
+                                    on l.id_autor equals a.id_autor
+                                 group a by a.nombre into libro
+                                 select new
+                                 {
+                                     NombreAutor = libro.Key,
+                                     CantidadLibros = libro.Count()
+                                 })
+                                 .OrderByDescending(res => res.CantidadLibros)
+                                 .Take(10)
+                                 .ToList();
+
+            if (!libroPorAutor.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(libroPorAutor);
+        }
+
+        // Verificar si un Autor Tiene Libros Publicados
+        [HttpGet]
+        [Route("verificarSiAutorTieneLibros/{id}")]
+        public IActionResult verificarSiAutorTieneLibros(int id)
+        {
+            var libroPorAutor = (from l in _bibliotecaContexto.Libro
+                                 join a in _bibliotecaContexto.Autor
+                                    on l.id_autor equals a.id_autor
+                                 where l.id_autor == id
+                                 group a by a.nombre into libro
+                                 select new
+                                 {
+                                     NombreAutor = libro.Key,
+                                     CantidadLibros = libro.Count()
+                                 }).ToList();
+
+            if (!libroPorAutor.Any())
+            {
+                return NotFound(new { mensaje = $"El autor con id '{id}' no tiene libros publicados." });
+            }
+
+            return Ok(libroPorAutor);
+        }
+
+        // Obtener el Primer Libro Publicado de un Autor
+        [HttpGet]
+        [Route("primerLibroPorAutor/{id}")]
+        public IActionResult primerLibroPorAutor(int id)
+        {
+            var primerLibro = (from l in _bibliotecaContexto.Libro
+                               join a in _bibliotecaContexto.Autor
+                               on l.id_autor equals a.id_autor
+                               where l.id_autor == id
+                               select new
+                               {
+                                   autor = a.nombre,
+                                   primerLibro = l.titulo,
+                                   anio = l.anioPublicacion
+                               })
+                               .OrderBy(res => res.anio)
+                               .FirstOrDefault();
+
+            if (primerLibro == null)
+            {
+                return NotFound(new { mensaje = $"El autor con id '{id}' no tiene libros publicados." });
+            }
+
+            return Ok(primerLibro);
+        }
 
     }
 }
