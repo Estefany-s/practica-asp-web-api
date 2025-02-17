@@ -1,0 +1,53 @@
+# Archivos de compilación y binarios
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.vs/
+
+# Archivos de usuario y configuración local
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vsconfig
+
+# Dependencias de paquetes
+packages/
+node_modules/
+wwwroot/lib/
+*.nupkg
+*.lock.json
+
+# Archivos generados por herramientas
+*.log
+*.tlog
+*.tmp
+*.bak
+
+# Archivos de configuración de compilación
+project.lock.json
+project.assets.json
+artifacts/
+appsettings.Local.json
+appsettings.Development.json
+
+# Archivos de configuración de Git
+!.gitignore
+.git/
+
+# Caché de dependencias de NuGet
+.nuget/
+.nuget/packages/
+
+# Archivos de configuración de Rider/JetBrains
+.idea/
+*.sln.iml
+
+# Publicaciones y despliegues
+publish/
+dist/
+dump/
